@@ -38,4 +38,3 @@ I looked through several different visualations and took ideas from a few to cre
 http://bl.ocks.org/mbostock
 https://github.com/d3/d3/wiki/Gallery
 
-http://bl.ocks.org/markclare1992/raw/595ad7d8c44b03d5e4298fba49bb7894/
