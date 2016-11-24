@@ -1,8 +1,7 @@
 # UdacityD3
 D3 learning project
 
-#H1 
-Summary
+## Summary
 
 My visualisaztion was designed to look into the effect of clock time on chance creation in mens Soccer, I also wanted to see whether any changes were uniform across shot types.  The data was scraped as a text commentary and parsed into a data file containing minute, shot location, shot type & outcome. A probit model was then fitted to assign a value to each shot.
 
