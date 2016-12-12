@@ -7,7 +7,7 @@
         body {
           font: 15px sans-serif;
         }
-
+/*Set style for axis */
         .axis path,
         .axis line {
           fill: none;
@@ -21,7 +21,7 @@
           stroke: rgba(0, 0, 0, 0.5);
           stroke-width: 2px;
         }
-
+/*Set stlye for half time axis */
         .yaxis2 path,
         .axisLine {
           fill: none;
@@ -29,7 +29,7 @@
           stroke: rgba(0, 0, 0, 0.5);
           stroke-width: 1.5px;
         }
-
+/*Set circle opacity to 50% */
         circle {
           fill-opacity: .5;
         }
@@ -68,63 +68,80 @@
     <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
     <script type="text/javascript">
 
+
         function plot_points(data){
 
-          var margin = { top: 50, right: 300, bottom: 50, left: 50 },
-            outerWidth = 1050,
-            outerHeight = 500,
-            width = outerWidth - margin.left - margin.right,
-            height = outerHeight - margin.top - margin.bottom;
+          //Set margin, width & height.
+          var margin = 85,
+            width = 1400 - margin,
+            height = 600 - margin;
+
+          //Set variables to be returned by tooltip  
+          var tip = d3.tip()
+            .attr("class", "d3-tip")
+            .offset([-10, 0])
+            .html(function(d) {
+              return "Minute" + ": " + d.Minute + "<br>" + "Total XG" + ": " + d.XG + "<br>" + "Shot Type" + ": " + d.Type;
+            });
 
           var svg = d3.select("body")
             .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        
+            .attr("width", width + margin)
+            .attr("height", height + margin)
+            .append("g");
+          
+          //Set data order so we can have points and legend in the same order.        
           var data_order = ['Shot','Headed','Penalty'];
-
+          //Rollup data with 2 keys, summing XG for each minute & shot type.
           var nested =d3.nest()
-                        .key(function(d){
-                          return d.minutes
-                        })
                         .key(function(d){
                           return d.Type
                         })
                         .sortKeys(function(a,b){
                           return data_order.indexOf(a) - data_order.indexOf(b)
                         })
+                        .key(function(d){
+                          return + d.minutes
+                        })
                         .rollup(function(leaves){
                           var total = d3.sum(leaves,function(d){
-                            return d.xg;
+                            return + d.xg;
                           });
                           return {
                             'xg' : total
                           };
                           })
                         .entries(data);
-          
-          debugger;
 
-          var x_max = d3.max(nested,function(d){
-            return d.key;
-          });
+          //Un-nest the data for ease of plotting.
+          var flatNest = [];
 
-          var y_max = d3.max(nested,function(d){
-            return d3.max(d.values, function(e){
-              return d3.max(e.values.xg);
+          nested.forEach(function(status){
+            var temp = [];
+            status.values.forEach(function(range){
+              flatNest.push({
+                Type: status.key,
+                Minute: +range.key,
+                XG: +range.values.xg
+              });
             });
           });
 
-          debugger;
+          //Calculate x & y max for scales for both axis
+          x_max=d3.max(flatNest, function(d){
+            return d.Minute;
+          });
+
+          y_max=d3.max(flatNest,function(d){
+            return d.XG;
+          });
 
           var x_scale=d3.scale.linear()
-              .range([margin.left, width])
+              .range([margin, width])
               .domain([0,x_max]);
               
           var y_scale=d3.scale.linear()
-              .range([height, margin.top])
+              .range([height, margin])
               .domain([0,y_max]);
 
           var xAxis = d3.svg.axis()
@@ -142,20 +159,20 @@
             .ticks(0)
             .orient('left');
 
-          debugger;
-
+          //Add x axis 
           d3.select("svg")
             .append("g")
-            .attr('class',"x axis")
             .attr("transform", "translate(0," + height + ")")
+            .attr('class',"x axis")
             .call(xAxis)
           .append("text")
             .attr("class", "label")
             .attr("x", width)
-            .attr("y", margin.bottom - 10)
+            .attr("y", margin - 30)
             .style("text-anchor", "end")
             .text('Minute');
 
+          //Add y axis 
           d3.select("svg")
             .append("g")
             .attr("class","y axis")
@@ -163,76 +180,101 @@
             .call(yAxis)
           .append("text")
             .attr("class","label")
+            .attr("dy", "-.5em")
             .attr("transform", "rotate(-90)")
             .style("text-anchor", "end")
             .text('Total XG');
 
+          //Add second y axis 
           d3.select("svg")
             .append("g")
             .attr("class","yaxis2")
             .attr("transform", "translate(" + x_scale(46) + ",0)")
             .style("stroke-dasharray", ("3, 3"))
-            .call(secyAxis)
+           .call(secyAxis)
           .append("text")
             .attr("class","label")
-            .attr("x",-165)
+            .attr("x",-205)
             .attr("y", -10)
             .attr("transform", "rotate(-90)") 
             .style("text-anchor", "end")
             .text('Half Time');
 
+          //Set color scheme
           var color = d3.scale.category10();
 
-          var tip = d3.tip()
-            .attr("class", "d3-tip")
-            .offset([-10, 0])
-            .html(function(d) {
-            return "Minutes" + ": " + d.key + "<br>" + "Total XG" + ": " + d.values.xg;
-          });
-
+          //Add title
           d3.select("svg")
             .append("text")
             .attr("class", "title")
-            .attr("x", width/2)
-            .attr("y", -10 + margin.top)
+            .attr("x", x_scale(45))
+            .attr("y", margin -50 )
             .attr("font-size",20)
             .attr("text-anchor", "middle")
             .text("Chance creation in Mens soccer");
 
-          
-          d3.select("svg").call(tip);
+          //Add subtitle
+           d3.select("svg")
+            .append("text")
+            .attr("class", "subtitle")
+            .attr("x", x_scale(45))
+            .attr("y", margin -20)
+            .attr("font-size",10)
+            .attr("text-anchor", "middle")
+            .text('A scatter plot to show the increase in chances as time progesses in Mens Soccer.')
 
-          function transform(d) {
-          return "translate(" + x_scale(d.key) + "," + y_scale(d.values.xg) + ")";
-          };
+            //Can't add line breaks to subtitle, so add 2nd subtitle with small y adjustment
+            d3.select("svg")
+            .append("text")
+            .attr("class", "subtitle_2")
+            .attr("x", x_scale(45))
+            .attr("y", margin -20)
+            .attr("dy", "1em")
+            .attr("font-size",10)
+            .attr("text-anchor", "middle")
+            .text(' Data is from 6000 games, each shot is assigned a value of how likely it is to result in a goal, based on a simple logistic regression model. Total XG refers to the total "expected" goals in the 6000 games in that minute.');
 
-          var legend = svg.selectAll(".legend")
-            .data(color.domain())
-            .enter().append("g")
-            .classed("legend", true)
-            .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+          //Call tip tool
+          svg.call(tip);
 
-          legend.append("circle")
-            .attr("r", 3.5)
-            .attr("cx", width + 20)
-            .attr("fill", color);
-
-          legend.append("text")
-            .attr("x", width + 26)
-            .attr("dy", ".35em")
-            .text(function(d) { return d; });
-
+          //Add circles, add tip functionality.
           svg.append("g")
               .attr("class","circle")
               .selectAll("circle")
-              .data(nested)
+              .data(flatNest)
               .enter()
               .append("circle")
               .attr("r", function (d) { return 6 * Math.sqrt(3.5 / Math.PI); })
-              .attr("transform", transform)
-              .style("fill", function(d) { return color(d.values.key); })
+              .attr("transform",transform)
+              .style("fill", function(d) { return color(d.Type);})
               .on("mouseover", tip.show)
               .on("mouseout", tip.hide);
+
+          //Add legend
+          var legend = svg.selectAll(".legend")
+            .data(color.domain())
+            .enter().append("g")
+            .attr("class","legend")
+            .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+          //Append cirlces to legend, move to more convenient position.
+          legend.append("circle")
+            .attr("r", function (d) { return 6 * Math.sqrt(3.5 / Math.PI); })
+            .attr("cy",margin + 180)
+            .attr("cx", width - 90)
+            .attr("fill", color);
+
+          legend.append("text")
+            .attr("y",margin + 180)
+            .attr("x", width - 75)
+            .attr("dy", ".35em")
+            .text(function(d) { return d; });
+
+          //Function to set x & y positions of circles.
+          function transform(d) {
+            return "translate(" + x_scale(d.Minute) + "," + y_scale(d.XG) + ")";
+          };
+
           };
           
     </script>
