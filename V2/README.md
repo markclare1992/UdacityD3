@@ -12,7 +12,9 @@ I then changed the plot to a scatter plot with the colour of the dots indicating
 ### Feedback
 
 Person 1. Difficult to see data values for individual point.
+
 Person 2. Large range in y values makes plot appear zoomed out.
+
 Person 3. Plot looks basic.
           Legend not in same order as points on plot.
 
@@ -26,11 +28,12 @@ In response to the feedback I made a few changes;
 
 ### Improvements
 
-1.  I scraped my data using R, and used dplyr there to aggregate my data into totals for individual minutes (Look into using roll-up to aggregate data using D3)
+1.  I scraped my data using R, and used dplyr there to aggregate my data into totals for individual minutes (Look into using roll-up to aggregate data using D3). This is now added in v2.
 2.  Add buttons so the user can choose which type of shot they want to look at.
 3.  Add animation to plot the points in time order with a line of best fit following.
-4.  Add something to indicate half time at 45 minutes, resulting in low numbers for minute 45.
+4.  Add something to indicate half time at 45 minutes, resulting in low numbers for minute 45. This is now added in v2 with 2nd y axis showing half time.
 5.  Add a way of displaying injury time data. (This was removed from my data file due to all injury time being labelled as either minute 45 or 90, regardless of how many minutes were played).
+6.  In v2 zoom & drag functionality was removed due to it not really being necessary, data & legend are now ordered in the same way & a subtitle has been added.
 
 ### Resources
 
