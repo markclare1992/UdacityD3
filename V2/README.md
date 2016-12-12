@@ -11,10 +11,10 @@ I then changed the plot to a scatter plot with the colour of the dots indicating
 
 ### Feedback
 
-1. Difficult to see data values for individual point.
-2. Large range in y values makes plot appear zoomed out.
-3. Plot looks basic.
-4. Legend not in same order as points on plot.
+Person 1. Difficult to see data values for individual point.
+Person 2. Large range in y values makes plot appear zoomed out.
+Person 3. Plot looks basic.
+          Legend not in same order as points on plot.
 
 ### Edit
 
