@@ -1,4 +1,2 @@
 # UdacityD3
-D3 learning project
-
-Scatterplots using d3.
+Project to learn how to use D3.
